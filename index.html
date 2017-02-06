@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>um</title>
+	<title>View a Gamepad's Input</title>
 </head>
 <body>
 
@@ -32,7 +32,6 @@
 			} catch (_) {
 				return
 			}
-			console.log(gamepad.buttons.map(a=>a.value).join())
 
 			for (var i = 0; i < 16; i++) {
 				var button = gamepad.buttons[i]
@@ -40,7 +39,6 @@
 				var element = document.getElementById(mapping.id)
 				var applyStyles = button.value ? mapping.pressedStyles : mapping.defaultStyles
 				Object.keys(applyStyles).forEach(function (key) {
-					if (element.style[key] !== applyStyles[key]) console.log('changing thing')
 					element.style[key] = applyStyles[key]
 				})
 			}
