@@ -3,11 +3,27 @@
 <head>
 	<meta charset="utf-8">
 	<title>View a Gamepad's Input</title>
+	<style>
+		.arrow {
+			position: absolute;
+			display: none;
+			border-bottom: 12px solid black;
+			border-left: 12px solid transparent;
+			border-right: 12px solid transparent;
+		}
+		#dpad-u { left: 263px; top: 330px; }
+		#dpad-d { left: 266px; top: 390px; transform: rotate(180deg); }
+		#dpad-l { left: 228px; top: 360px; transform: rotate(270deg); }
+		#dpad-r { left: 300px; top: 360px; transform: rotate(90deg); }
+		#stick-l { left: 160px; top: 270px; }
+		#stick-r { left: 463px; top: 373px; }
+	</style>
 </head>
 <body>
 
 	<script>
-		var mappings = [
+
+		var buttonMappings = [
 			{ id: 'path4961', defaultStyles: { fill: '#35d900', stroke: '#000' }, pressedStyles: { fill: '#249500', stroke: '' }, name: 'A' },
 			{ id: 'path4971', defaultStyles: { fill: '#ff1303', stroke: '#000' }, pressedStyles: { fill: '#ab0b00', stroke: '' }, name: 'B' },
 			{ id: 'path4959', defaultStyles: { fill: '#0e52ff', stroke: '#000' }, pressedStyles: { fill: '#0032b0', stroke: '' }, name: 'X' },
@@ -20,10 +36,14 @@
 			{ id: 'path4985', defaultStyles: { fill: '#f1f1f1' }, pressedStyles: { fill: '#888' }, name: 'Start' },
 			{ id: 'path5086', defaultStyles: { fill: '#999999' }, pressedStyles: { fill: '#444' }, name: 'L Stick' },
 			{ id: 'path5088', defaultStyles: { fill: '#999999' }, pressedStyles: { fill: '#444' }, name: 'R Stick' },
-			{ id: 'path4975', defaultStyles: { fill: '#848484' }, pressedStyles: { fill: '#333' }, name: 'DPAD up' },
-			{ id: 'path4981', defaultStyles: { fill: '#848484' }, pressedStyles: { fill: '#333' }, name: 'DPAD down' },
-			{ id: 'path4973', defaultStyles: { fill: '#848484' }, pressedStyles: { fill: '#333' }, name: 'DPAD left' },
-			{ id: 'path5218', defaultStyles: { fill: '#848484' }, pressedStyles: { fill: '#333' }, name: 'DPAD right' }
+			{ id: 'dpad-u', defaultStyles: { display: 'none' }, pressedStyles: { display: 'block' }, name: 'DPAD up' },
+			{ id: 'dpad-d', defaultStyles: { display: 'none' }, pressedStyles: { display: 'block' }, name: 'DPAD down' },
+			{ id: 'dpad-l', defaultStyles: { display: 'none' }, pressedStyles: { display: 'block' }, name: 'DPAD left' },
+			{ id: 'dpad-r', defaultStyles: { display: 'none' }, pressedStyles: { display: 'block' }, name: 'DPAD right' }
+		]
+		var axesMappings = [
+			{ id: 'stick-l', x: 0, y: 1 },
+			{ id: 'stick-r', x: 2, y: 3 },
 		]
 
 		setInterval(function () {
@@ -32,24 +52,39 @@
 			} catch (_) {
 				return
 			}
+			if (!gamepad) return
 
 			for (var i = 0; i < 16; i++) {
 				var button = gamepad.buttons[i]
-				var mapping = mappings[i]
+				var mapping = buttonMappings[i]
 				var element = document.getElementById(mapping.id)
 				var applyStyles = button.value ? mapping.pressedStyles : mapping.defaultStyles
 				Object.keys(applyStyles).forEach(function (key) {
 					element.style[key] = applyStyles[key]
 				})
 			}
+
+			axesMappings.forEach(function (mapping) {
+				var stickDistance = Math.pow(gamepad.axes[mapping.x], 2) + Math.pow(gamepad.axes[mapping.y], 2)
+				var element = document.getElementById(mapping.id)
+				element.style.display = (stickDistance > 0.001) ? 'block' : 'none'
+				var radians = Math.atan2(gamepad.axes[mapping.y], gamepad.axes[mapping.x])
+				radians += Math.PI / 2 // Rotate another quarter-turn
+				element.style.transform = 'rotate(' + radians + 'rad)'
+			})
 		}, 10)
 	</script>
 
+	<div id="dpad-u" class="arrow"></div>
+	<div id="dpad-d" class="arrow"></div>
+	<div id="dpad-l" class="arrow"></div>
+	<div id="dpad-r" class="arrow"></div>
+
+	<div id="stick-l" class="arrow"></div>
+	<div id="stick-r" class="arrow"></div>
 
 	<!-- https://commons.wikimedia.org/wiki/File:Xbox_Controller.svg -->
-
 	<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 	<svg
 		 xmlns:dc="http://purl.org/dc/elements/1.1/"
 		 xmlns:cc="http://creativecommons.org/ns#"
